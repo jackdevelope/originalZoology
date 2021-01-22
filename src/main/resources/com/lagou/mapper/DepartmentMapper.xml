@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lagou.mapper.DepartmentMapper">
+    <!--sql片段-->
+    <sql id="selectDepartment">
+         select * from department
+    </sql>
+    <!--单表部门查询集-->
+    <!--id : 标签的唯一标识
+       type: 封装后实体类型-->
+    <resultMap id="departmentResult" type="department">
+        <!--手动配置映射关系-->
+        <!--id: 用来配置主键-->
+        <!-- result: 表中普通字段的封装-->
+        <id property="dept_id" column="dept_id"/>
+        <result property="dept_num" column="dept_num"/>
+        <result property="dept_name" column="dept_name"/>
+        <result property="dept_duty" column="dept_duty"/>
+        <result property="dept_major_name" column="dept_major_name"/>
+        <result property="dept_major_telephone" column="dept_major_telephone"/>
+        <result property="dept_major_email" column="dept_major_email"/>
+        <result property="dept_telephone" column="dept_telephone"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <!--部门与员工查询集-->
+    <resultMap id="departmentEmp" type="department">
+        <id property="dept_id" column="dept_id"/>
+        <result property="dept_num" column="dept_num"/>
+        <result property="dept_name" column="dept_name"/>
+        <result property="dept_duty" column="dept_duty"/>
+        <result property="dept_major_name" column="dept_major_name"/>
+        <result property="dept_major_telephone" column="dept_major_telephone"/>
+        <result property="dept_major_email" column="dept_major_email"/>
+        <result property="dept_telephone" column="dept_telephone"/>
+        <result property="remark" column="remark"/>    <!--根据部门dept_id，查询相应部门的员工表-->
+       <collection property="empList" column="dept_id" ofType="emp" select="com.lagou.mapper.EmpMapper.selDepartmentAndEmpByDepId">
+       </collection>
+    </resultMap>
+    <!--查询所有部门-->
+    <select id="selAllDpartment" resultMap="departmentResult">
+        <include refid="selectDepartment"/>
+    </select>
+    <!--根据部门编号和部门名查询单个部门-->
+    <select id="selSignDepartment" parameterType="department" resultMap="departmentResult">
+        <include refid="selectDepartment"/>
+        <!-- test里面写的就是表达式
+            <where>: 相当于where 1= 1，但是如果没有条件的话，不会拼接上where关键字
+        -->
+        <where>
+            <if test="dept_num != null">
+                and dept_num = #{dept_num}
+            </if>
+            <if test="dept_name !=null">
+                and dept_name = #{dept_name}
+            </if>
+        </where>
+    </select>
+    <!--根据部门id查询单个部门-->
+    <select id="selDepartmentById" parameterType="int" resultMap="departmentResult">
+        select * from department where dept_id = #{dept_id}
+    </select>
+    <!--客户模糊查询-->
+    <select id="selLikeSignDepartment" resultMap="departmentResult" parameterType="string">
+        <!-- #{}在mybatis中是占位符，引用参数值的时候会自动添加单引号 -->
+        select * from department where dept_name like #{dept_name}
+    </select>
+    <!-- 动态sql之if : 多条件查询-->
+    <select id="selDepartmentIf" parameterType="department" resultMap="departmentResult">
+        <include refid="selectDepartment"/>
+        <!-- test里面写的就是表达式
+            <where>: 相当于where 1= 1，但是如果没有条件的话，不会拼接上where关键字
+        -->
+        <where>
+            <if test="dept_id != null">
+                and dept_id = #{dept_id}
+            </if>
+            <if test="dept_num !=null">
+                and dept_num = #{dept_num}
+            </if>
+            <if test="dept_name != null">
+                and dept_name = #{dept_name}
+            </if>
+            <if test="dept_duty !=null">
+                and dept_duty = #{dept_duty}
+            </if>
+            <if test="dept_major_name != null">
+                and dept_major_name = #{dept_major_name}
+            </if>
+            <if test="dept_major_telephone != null">
+                and dept_major_telephone = #{dept_major_telephone}
+            </if>
+            <if test="dept_major_email != null">
+                and dept_major_email = #{dept_major_email}
+            </if>
+            <if test="dept_telephone !=null">
+                and dept_telephone = #{dept_telephone}
+            </if>
+            <if test="remark !=null">
+                and remark = #{remark}
+            </if>
+        </where>
+    </select>
+    <!--部门员工嵌套查询-->
+    <select id="selDepartmentAndEmp" resultMap="departmentEmp">
+        <include refid="selectDepartment"/>
+    </select>
+    <!--增加部门并返回主键-->
+    <insert id="addDepartment" useGeneratedKeys="true" keyProperty="dept_id" keyColumn="dept_id"  parameterType="department" >
+
+        <!--
+            selectKey : 适用范围更广，支持所有类型的数据库
+                order="AFTER"  ： 设置在sql语句执行前（后），执行此语句
+                keyColumn="id" : 指定主键对应列名
+                keyProperty="id"：把返回主键的值，封装到实体中的那个属性上
+                 resultType="int"：指定主键类型
+        -->
+        <selectKey order="AFTER" keyColumn="dept_id" keyProperty="dept_id" resultType="int">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+        insert into department(dept_num,dept_name,dept_duty,dept_major_name,dept_major_telephone,dept_major_email,dept_telephone,remark) values (#{dept_num},#{dept_name},#{dept_duty},#{dept_major_name},#{dept_major_telephone},#{dept_major_email},#{dept_telephone},#{remark})
+    </insert>
+    <!--动态sql之set ： 动态更新部门但不返回主键-->
+    <update id="editDepartment" parameterType="department">
+        update department
+        <!--<set> : 在更新的时候，会自动添加set关键字，还会去掉最后一个条件的逗号 -->
+        <trim prefix="set" suffixOverrides=",">
+            <if test="dept_num != null">
+                dept_num = #{dept_num},
+            </if>
+            <if test="dept_name != null">
+                dept_name = #{dept_name},
+            </if>
+            <if test="dept_duty != null">
+                dept_duty = #{dept_duty},
+            </if>
+            <if test="dept_major_name != null">
+                dept_major_name = #{dept_major_name},
+            </if>
+            <if test="dept_major_telephone != null">
+                dept_major_telephone = #{dept_major_telephone},
+            </if>
+            <if test="dept_major_email != null">
+                dept_major_email = #{dept_major_email},
+            </if>
+            <if test="dept_telephone != null">
+                dept_telephone = #{dept_telephone},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </trim>
+        where dept_id = #{dept_id}
+    </update>
+    <!--删除部门-->
+    <delete id="deleteDpartment" parameterType="string">
+        delete from department where dept_num = #{dept_num}
+    </delete>
+</mapper>

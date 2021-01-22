@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lagou.mapper.EmpMapper">
+    <!--sql片段-->
+    <sql id="selectEmp">
+        select * from emp
+    </sql>
+    <!--员工查询集-->
+    <resultMap id="empResult" type="emp">
+        <id property="emp_id" column="emp_id"/>
+        <result property="dept_id" column="dep_id"/>
+        <result property="dept_name" column="dept_name"/>
+        <result property="emp_num" column="emp_num" />
+        <result property="emp_name"  column="emp_name" />
+        <result property="emp_job" column="emp_job"/>
+        <result property="emp_duty" column="emp_duty"/>
+        <result property="emp_salary" column="emp_salary"/>
+        <result property="emp_working_days" column="emp_working_days"/>
+        <result property="emp_join_datetime" column="emp_join_datetime"/>
+        <result property="emp_client_record" column="emp_client_record"/>
+        <result property="emp_client_ammount" column="emp_client_ammount"/>
+        <result property="emp_check" column="emp_check"/>
+        <result property="emp_type" column="emp_type"/>
+        <result property="emp_telephone" column="emp_telephone"/>
+        <result property="emp_qq" column="emp_qq"/>
+        <result property="emp_wechat" column="emp_wechat"/>
+        <result property="emp_qqemail" column="emp_qqemail"/>
+        <result property="emp_163email" column="emp_163email"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <!--员工与客户查询集-->
+    <resultMap id="empClient" type="emp">
+        <id property="emp_id" column="emp_id"/>
+        <result property="dept_id" column="dep_id"/>
+        <result property="dept_name" column="dept_name"/>
+        <result property="emp_num" column="emp_num" />
+        <result property="emp_name"  column="emp_name" />
+        <result property="emp_job" column="emp_job"/>
+        <result property="emp_duty" column="emp_duty"/>
+        <result property="emp_salary" column="emp_salary"/>
+        <result property="emp_working_days" column="emp_working_days"/>
+        <result property="emp_join_datetime" column="emp_join_datetime"/>
+        <result property="emp_client_record" column="emp_client_record"/>
+        <result property="emp_client_ammount" column="emp_client_ammount"/>
+        <result property="emp_check" column="emp_check"/>
+        <result property="emp_type" column="emp_type"/>
+        <result property="emp_telephone" column="emp_telephone"/>
+        <result property="emp_qq" column="emp_qq"/>
+        <result property="emp_wechat" column="emp_wechat"/>
+        <result property="emp_qqemail" column="emp_qqemail"/>
+        <result property="emp_163email" column="emp_163email"/>
+        <result property="remark" column="remark"/>
+        <!--根据员工emp_id，查询相应客户的信息表-->
+        <collection property="clientList" ofType="client" column="emp_id" select="com.lagou.mapper.ClientMapper.selEmpAndClientByEmpid"></collection>
+    </resultMap>
+    <!--查询所有员工-->
+    <select id="selAllEmp" resultMap="empResult">
+        <include refid="selectEmp"/>
+    </select>
+    <!--查询单个员工-->
+    <select id="selSignEmp" resultMap="empResult">
+        <include refid="selectEmp"/>
+        <where>
+            <if test="emp_num != null">
+                and emp_num = #{emp_num}
+            </if>
+            <if test="emp_name != null">
+                and emp_name = #{emp_name}
+            </if>
+        </where>
+    </select>
+    <!--根据id查询单个员工-->
+    <select id="selEmpById" parameterType="int" resultMap="empResult">
+        select * from emp where emp_id = #{emp_id}
+    </select>
+    <!--客户模糊查询-->
+    <select id="selLikeSignEmp" resultMap="empResult" parameterType="string">
+        <!-- #{}在mybatis中是占位符，引用参数值的时候会自动添加单引号 -->
+        select * from emp where emp_name like #{emp_name}
+    </select>
+    <!-- 动态sql之if : 多条件查询-->
+    <select id="selEmpIf" parameterType="client" resultMap="empResult">
+        <include refid="selectEmp"/>
+        <!-- test里面写的就是表达式
+            <where>: 相当于where 1= 1，但是如果没有条件的话，不会拼接上where关键字
+        -->
+        <where>
+            <if test="emp_id != null">
+                emp_id = #{emp_id},
+            </if>
+            <if test="dept_id != null">
+                dept_id = #{dept_id},
+            </if>
+            <if test="dept_name != null">
+                dept_name = #{dept_name},
+            </if>
+            <if test="emp_num != null">
+                emp_num = #{emp_num},
+            </if>
+            <if test="emp_name != null">
+                emp_name = #{emp_name},
+            </if>
+            <if test="emp_job != null">
+                emp_job = #{emp_job}
+            </if>
+            <if test="emp_duty != null">
+                emp_duty = #{emp_duty}
+            </if>
+            <if test="emp_salary != null">
+                emp_salary = #{emp_salary}
+            </if>
+            <if test="emp_working_days != null">
+                emp_working_days = #{emp_working_days}
+            </if>
+            <if test="emp_join_datetime != null">
+                emp_join_datetime = #{emp_join_datetime},
+            </if>
+            <if test="emp_client_record != null">
+                emp_client_record = #{emp_client_record},
+            </if>
+            <if test="emp_client_ammount != null">
+                emp_client_ammount = #{emp_client_ammount},
+            </if>
+            <if test="emp_check != null">
+                emp_check = #{emp_check},
+            </if>
+            <if test="emp_type != null">
+                emp_type = #{emp_type},
+            </if>
+            <if test="emp_telephone != null">
+                emp_telephone = #{emp_telephone},
+            </if>
+            <if test="emp_qq != null">
+                emp_qq = #{emp_qq}
+            </if>
+            <if test="emp_wechat != null">
+                emp_wechat = #{emp_wechat}
+            </if>
+            <if test="emp_qqemail != null">
+                emp_qqemail = #{emp_qqemail}
+            </if>
+            <if test="emp_163email != null">
+                emp_163email = #{emp_163email}
+            </if>
+            <if test="remark != null">
+                remark = #{remark}
+            </if>
+        </where>
+    </select>
+    <!--员工与客户嵌套查询-->
+    <select id="selEmpAndClient" resultMap="empClient">
+        <include refid="selectEmp"/>
+    </select>
+    <!--部门与员工嵌套查询-->
+    <select id="selDepartmentAndEmpByDepId" parameterType="int" resultMap="empResult">
+        select * from emp where dept_id = #{dept_id}
+    </select>
+    <!--增加员工并返回主键-->
+    <insert id="addEmp" useGeneratedKeys="true" keyProperty="emp_id" keyColumn="emp_id"  parameterType="emp">
+        <!--
+          selectKey : 适用范围更广，支持所有类型的数据库
+              order="AFTER"  ： 设置在sql语句执行前（后），执行此语句
+              keyColumn="id" : 指定主键对应列名
+              keyProperty="id"：把返回主键的值，封装到实体中的那个属性上
+               resultType="int"：指定主键类型
+      -->
+        <selectKey order="AFTER" keyColumn="emp_id" keyProperty="emp_id" resultType="int">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+        insert into emp(dept_id,dept_name,emp_num,emp_name,emp_job,emp_duty,emp_salary,emp_working_days,emp_join_datetime,emp_client_record,emp_client_ammount,emp_check,emp_type,emp_telephone,emp_qq,emp_wechat,emp_qqemail,emp_163email,remark) values (#{dept_id},#{dept_name},#{emp_num},#{emp_name},#{emp_job},#{emp_duty},#{emp_salary},#{emp_working_days},#{emp_join_datetime},#{emp_client_record},#{emp_client_ammount},#{emp_check},#{emp_type},#{emp_telephone},#{emp_qq},#{emp_wechat},#{emp_qqemail},#{emp_163email},#{remark})
+    </insert>
+    <!--动态sql之set ： 动态更新员工但不返回主键-->
+    <update id="editEmp" parameterType="emp">
+        update emp
+        <!--<set> : 在更新的时候，会自动添加set关键字，还会去掉最后一个条件的逗号 -->
+        <trim prefix="set" suffixOverrides=",">
+            <if test="dept_name != null">
+                dept_name = #{dept_name},
+            </if>
+            <if test="emp_num != null">
+                emp_num = #{emp_num},
+            </if>
+            <if test="emp_name != null">
+                emp_name = #{emp_name},
+            </if>
+            <if test="emp_job != null">
+                emp_job = #{emp_job},
+            </if>
+            <if test="emp_duty != null">
+                emp_duty = #{emp_duty},
+            </if>
+            <if test="emp_salary != null">
+                emp_salary = #{emp_salary},
+            </if>
+            <if test="emp_working_days != null">
+                emp_working_days = #{emp_working_days},
+            </if>
+            <if test="emp_join_datetime != null">
+                emp_join_datetime = #{emp_join_datetime},
+            </if>
+            <if test="emp_client_record != null">
+                emp_client_record = #{emp_client_record},
+            </if>
+            <if test="emp_client_ammount != null">
+                emp_client_ammount = #{emp_client_ammount},
+            </if>
+            <if test="emp_check != null">
+                emp_check = #{emp_check},
+            </if>
+            <if test="emp_type != null">
+                emp_type = #{emp_type},
+            </if>
+            <if test="emp_telephone != null">
+                emp_telephone = #{emp_telephone},
+            </if>
+            <if test="emp_qq != null">
+                emp_qq = #{emp_qq},
+            </if>
+            <if test="emp_wechat != null">
+                emp_wechat = #{emp_wechat},
+            </if>
+            <if test="emp_qqemail != null">
+                emp_qqemail = #{emp_qqemail},
+            </if>
+            <if test="emp_163email != null">
+                emp_163email = #{emp_163email},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </trim>
+        where dept_id = #{dept_id} and emp_id = #{emp_id}
+    </update>
+    <!--删除员工-->
+    <delete id="deleteEmp" parameterType="int">
+        delete from emp where emp_num = #{emp_num}
+    </delete>
+</mapper>

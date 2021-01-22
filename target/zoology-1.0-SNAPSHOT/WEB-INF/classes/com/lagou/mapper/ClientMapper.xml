@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lagou.mapper.ClientMapper">
+    <!--客户查询片段-->
+    <sql id="selectClient">
+        select * from client
+    </sql>
+    <!--客户查询集-->
+    <resultMap id="clientResult" type="client">
+        <id property="client_id" column="client_id"  />
+        <result property="emp_id"  column="emp_id" />
+        <result property="emp_name" column="emp_name"/>
+        <result property="client_num" column="client_num"/>
+        <result property="client_name" column="client_name"/>
+        <result property="client_job" column="client_job"/>
+        <result property="client_telephone" column="client_telephone"/>
+        <result property="client_address" column="client_address"/>
+        <result property="client_bank_account" column="client_bank_account"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <!--查询所有客户-->
+    <!--resultMap：手动配置实体属性与表中字段的映射关系，完成手动封装-->
+    <select id="selAllClient" resultMap="clientResult">
+        <include refid="selectClient"/>
+    </select>
+    <!--通过客户编号和客户名查询单个客户-->
+    <select id="selSignClient" resultMap="clientResult">
+        <include refid="selectClient"/>
+        <where>
+            <if test="client_num != null">
+                and client_num = #{client_num}
+          </if>
+           <if test="client_name != null">
+             and client_name = #{client_name}
+           </if>
+        </where>
+    </select>
+    <!--根据id查询客户-->
+    <select id="findClientById" parameterType="int" resultMap="clientResult">
+        select * from client where client_id = #{client_id}
+    </select>
+    <!--客户模糊查询-->
+    <select id="selLikeSignClient" resultMap="clientResult" parameterType="string">
+        <!-- #{}在mybatis中是占位符，引用参数值的时候会自动添加单引号 -->
+        select * from client where client_name like #{client_name}
+    </select>
+    <!-- 动态sql之if : 多条件查询-->
+    <select id="findClientIf" parameterType="client" resultMap="clientResult">
+        <include refid="selectClient"/>
+        <!-- test里面写的就是表达式
+            <where>: 相当于where 1= 1，但是如果没有条件的话，不会拼接上where关键字
+        -->
+        <where>
+            <if test="client_id != null">
+                and client_id = #{client_id}
+            </if>
+            <if test="emp_id != null">
+                and emp_id = #{emp_id}
+            </if>
+            <if test="emp_name !=n ull">
+                and emp_name = #{emp_name}
+            </if>
+            <if test="client_num != null">
+                and client_num = #{client_num}
+            </if>
+            <if test="client_name != null">
+                and client_name = #{client_name}
+            </if>
+            <if test="client_job != null">
+                and client_job = #{client_job}
+            </if>
+            <if test="client_telephone != null">
+                and client_telephone = #{client_telephone}
+            </if>
+            <if test="client_address != null">
+                and client_address = #{client_address}
+            </if>
+            <if test="client_bank_accout != null">
+                and  client_bank_accout = #{ client_bank_accout}
+            </if>
+            <if test="remark != null">
+                and remark = #{remark}
+            </if>
+        </where>
+    </select>
+    <!--员工与客户嵌套查询-->
+    <select id="selEmpAndClientByEmpid" parameterType="int" resultType="client">
+         select * from client where emp_id = #{emp_id}
+    </select>
+    <!--添加用户并返回主键值-->
+    <insert id="addClient" useGeneratedKeys="true" keyProperty="client_id" keyColumn="client_id"  parameterType="client" >
+       <!--
+            selectKey : 适用范围更广，支持所有类型的数据库
+                order="AFTER"  ： 设置在sql语句执行前（后），执行此语句
+                keyColumn="id" : 指定主键对应列名
+                keyProperty="id"：把返回主键的值，封装到实体中的那个属性上
+                 resultType="int"：指定主键类型
+        -->
+        <selectKey order="AFTER" keyColumn="client_id" keyProperty="client_id" resultType="int">
+          SELECT LAST_INSERT_ID();
+        </selectKey>
+          insert into client(client_id,emp_id,emp_name,client_num,client_name,client_job,client_telephone,client_address,client_bank_account,remark) values (#{client_id},#{emp_id},#{emp_name},#{client_num},#{client_name},#{client_job},#{client_telephone},#{client_address},#{client_bank_account},#{remark})
+    </insert>
+    <!--动态sql之set ： 动态更新用户但不返回主键-->
+    <update id="editClient" parameterType="client">
+        update client
+        <!--<set> : 在更新的时候，会自动添加set关键字，还会去掉最后一个条件的逗号 -->
+        <trim prefix="set" suffixOverrides=",">
+            <if test="emp_name != null">
+                emp_name = #{emp_name},
+            </if>
+            <if test="client_num != null">
+                client_num = #{client_num},
+            </if>
+            <if test="client_name != null">
+                client_name = #{client_name},
+            </if>
+            <if test="client_job != null">
+                client_job = #{client_job},
+            </if>
+            <if test="client_telephone != null">
+                client_telephone = #{client_telephone},
+            </if>
+            <if test="client_address != null">
+                client_address = #{client_address},
+            </if>
+            <if test="client_bank_account != null">
+                client_bank_account = #{ client_bank_account},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </trim>
+        where client_id = #{client_id} and emp_id = #{emp_id}
+    </update>
+    <!--删除客户-->
+    <delete id="deleteClient" parameterType="string">
+        delete from client where client_num = #{client_num}
+    </delete>
+</mapper>
