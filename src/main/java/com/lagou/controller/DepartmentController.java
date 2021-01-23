@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.print.attribute.standard.RequestingUserName;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -23,8 +26,9 @@ public class DepartmentController {
     private DepartmentService departmentService;
    //查询所有
     @GetMapping(value = "/departmentSelAll")
-    public List<Department> allDepartment(){
-        ModelAndView modelAndView =new ModelAndView();
+    public List<Department> allDepartment(HttpServletRequest request,HttpServletResponse response){
+        request.getParameter("sign");
+        System.out.println("successful");
         List<Department> departmentList = departmentService.allDepartmentInformation();
         return departmentList;
     }
